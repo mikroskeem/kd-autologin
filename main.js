@@ -1,4 +1,4 @@
-#!/usr/bin/env nodejs
+#!/usr/bin/env node
 
 var config = {};
 var debug = {};
@@ -13,23 +13,27 @@ config.password = "";
 
 /* Imports */
 var colors = require("colors"),
-    glob = require("glob"),
     path = require('path'),
-    childProcess = require('child_process'),
-    phantomjs = require('phantomjs').path; 
-
+    childProcess = require('child_process');
 
 /* Functions */
-function launchphantom(args){
+function launchbrowser(args){
     var childArgs = [
-        path.join(__dirname, 'browser.js'),
-        args
+        "--ssl-protocol=any",
+        path.join(__dirname, 'browser.js')
     ];
-    childProcess.execFile(binPath, childArgs, function(err, stdout, stderr) {
-        if(stdout) console.log("PhantomJS output: " + "%s".yellow, stdout);
-        if(stderr) console.log("PhantomJS stderr: " + "%s".red, stderr);
-        if(err) console.log("exec err: " + "%s".red, err);
+    args.forEach(function(arg, index){
+        console.log("DEBUG: " + "Arg: ".cyan + index + ": " + arg);
+        childArgs.push(arg);
+    });
+    childProcess.execFile("/usr/bin/casperjs", childArgs, function(err, stdout, stderr) {
+	if(debug.yes){
+            console.log("Browser started");
+            if(stdout) console.log("DEBUG: " + "CasperJS output: ".cyan + "%s".yellow, stdout);
+            if(stderr) console.log("DEBUG: " + "CasperJS stderr: ".cyan + "%s".red, stderr);
+            if(err) console.log("DEBUG: " + "exec err: ".cyan + "%s".red, err);
+        }
     });
 }
 /* Main */
-launchphantom("lel");
+launchbrowser(["https://koding.com/Login", debug.yes, debug.picture_path, config.username, config.password]);
